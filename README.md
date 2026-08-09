@@ -8,6 +8,53 @@ This project uses **Neural Collaborative Filtering (NCF)** to learn customer and
 
 The project uses synthetic banking data designed to simulate realistic customer behavior while avoiding the use of real financial customer information.
 
+## Data Pipeline
+
+The repository includes a reproducible synthetic banking data generator and a local MySQL pipeline.
+
+```text
+Synthetic Data Generator
+        │
+        ├── Customers
+        ├── Transactions
+        ├── Merchants
+        ├── Products
+        ├── Customer Products
+        └── Monthly Summaries
+                │
+                ▼
+          Local MySQL
+                │
+                ▼
+      ML / Recommendation Pipeline
+```
+
+### Generate data
+
+```bash
+pip install -r requirements.txt
+python data_generator/generate_data.py --customers 10000 --months 12 --tx-per-customer-month 8
+```
+
+### Create the MySQL database
+
+Run `database/schema.sql` in your local MySQL instance.
+
+Then load the generated CSV files:
+
+```bash
+python database/load_mysql.py \
+  --user root \
+  --password YOUR_MYSQL_PASSWORD \
+  --database banking_recommendation
+```
+
+The default generator creates 10,000 customers and 12 months of activity. Increase `--customers`, `--months`, and `--tx-per-customer-month` when you need a larger training dataset.
+
+### Read data from MySQL
+
+Downstream notebooks and ML code can reuse the query helpers in `database/query_mysql.py` instead of loading raw CSV files directly.
+
 ## Objectives
 
 * Generate realistic synthetic banking data.
@@ -19,8 +66,6 @@ The project uses synthetic banking data designed to simulate realistic customer 
 * Evaluate recommendation performance using ranking metrics.
 
 ## Financial Products
-
-The system can recommend products such as:
 
 * Credit Cards
 * Premium Credit Cards
@@ -54,22 +99,6 @@ Product Embedding ┘
 Top-K Recommendations
 ```
 
-## Dataset
-
-The project uses a synthetic banking dataset containing:
-
-* Customer profiles
-* Transactions
-* Financial products
-* Product ownership
-* Loans
-* Investments
-* Insurance
-* Credit information
-* Customer-product interactions
-
-The data generator is designed to create realistic relationships between customer attributes, financial behavior, and product adoption.
-
 ## Models
 
 ### Baseline Models
@@ -89,28 +118,7 @@ The data generator is designed to create realistic relationships between custome
 * Two-Tower Recommendation Model
 * Sequential Recommendation using Transformers
 
-## Features
-
-Example features include:
-
-* Income
-* Credit Score
-* Average Monthly Spend
-* Savings Rate
-* Debt-to-Income Ratio
-* Credit Utilization
-* Investment Ratio
-* Transaction Frequency
-* Travel Frequency
-* Shopping Frequency
-* Number of Existing Products
-* Customer Recency
-* Customer Frequency
-* Monetary Value
-
 ## Evaluation
-
-Recommendation performance will be evaluated using:
 
 * Precision@K
 * Recall@K
@@ -123,7 +131,7 @@ Recommendation performance will be evaluated using:
 
 * Python
 * SQL
-* PostgreSQL
+* MySQL
 * Pandas
 * NumPy
 * Scikit-learn
@@ -137,8 +145,17 @@ Recommendation performance will be evaluated using:
 financial-product-recommendation/
 │
 ├── data_generator/
+│   ├── config.py
+│   └── generate_data.py
+│
 ├── data/
+│   └── generated/          # local generated files; do not commit datasets
+│
 ├── database/
+│   ├── schema.sql
+│   ├── load_mysql.py
+│   └── query_mysql.py
+│
 ├── notebooks/
 ├── features/
 ├── models/
@@ -147,6 +164,7 @@ financial-product-recommendation/
 ├── api/
 ├── dashboard/
 │
+├── .env.example
 ├── requirements.txt
 └── README.md
 ```
@@ -154,4 +172,3 @@ financial-product-recommendation/
 ## Disclaimer
 
 This project uses **synthetic financial data** for educational and research purposes. No real customer or financial information is used.
-

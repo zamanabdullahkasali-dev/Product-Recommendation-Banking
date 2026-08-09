@@ -1,0 +1,5 @@
+numpy>=2.0
+pandas>=2.2
+SQLAlchemy>=2.0
+PyMySQL>=1.1
+Faker>=26.0
